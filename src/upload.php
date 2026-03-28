@@ -1,15 +1,19 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/headers.php';
+require_once __DIR__ . '/includes/csrf.php';
 requireLogin();
 
 $message = '';
 $messageType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
-    $file = $_FILES['file'];
-
-    if ($file['error'] === UPLOAD_ERR_OK) {
+    if (!validateCsrfToken()) {
+        $message = 'Invalid request. Please try again.';
+        $messageType = 'error';
+    } elseif ($_FILES['file']['error'] === UPLOAD_ERR_OK) {
+        $file = $_FILES['file'];
         $filename = $file['name'];
         $contentType = $file['type'];
         $fileData = file_get_contents($file['tmp_name']);
@@ -36,7 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
             $messageType = 'error';
         }
     } else {
-        $message = "Upload error (code: {$file['error']}).";
+        $code = $_FILES['file']['error'];
+        $message = "Upload error (code: {$code}).";
         $messageType = 'error';
     }
 }
@@ -79,6 +84,7 @@ $result = $uploads->get_result();
     <?php endif; ?>
 
     <form method="POST" enctype="multipart/form-data">
+        <?= csrfField() ?>
         <label for="file">Select file (PDF only)</label>
         <input type="file" id="file" name="file" accept=".pdf" required>
         <input type="submit" value="Upload">

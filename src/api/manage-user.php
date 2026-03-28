@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/headers.php';
+// NOTE: No CSRF validation on this API endpoint. This is a deliberate
+// vulnerability — the other form endpoints validate CSRF tokens, but
+// this one was missed. Separate finding in the pen test report.
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/headers.php';
 requireAdmin();
 
 $result = $conn->query("SELECT id, display_name, email, role, created_at FROM users ORDER BY id");

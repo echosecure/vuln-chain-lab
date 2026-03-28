@@ -1,30 +1,39 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/headers.php';
+require_once __DIR__ . '/includes/csrf.php';
 requireLogin();
 
 $message = '';
+$messageType = 'success';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $subject = $_POST['subject'] ?? '';
-    $body = $_POST['body'] ?? '';
-    $priority = isset($_POST['priority']) ? 1 : 0;
-
-    $stmt = $conn->prepare(
-        "INSERT INTO messages (sender_id, subject, body, priority) VALUES (?, ?, ?, ?)"
-    );
-    $stmt->bind_param(
-        'issi',
-        $_SESSION['user_id'],
-        $subject,
-        $body,
-        $priority
-    );
-
-    if ($stmt->execute()) {
-        $message = 'Message sent successfully.';
+    if (!validateCsrfToken()) {
+        $message = 'Invalid request. Please try again.';
+        $messageType = 'error';
     } else {
-        $message = 'Failed to send message.';
+        $subject = $_POST['subject'] ?? '';
+        $body = $_POST['body'] ?? '';
+        $priority = isset($_POST['priority']) ? 1 : 0;
+
+        $stmt = $conn->prepare(
+            "INSERT INTO messages (sender_id, subject, body, priority) VALUES (?, ?, ?, ?)"
+        );
+        $stmt->bind_param(
+            'issi',
+            $_SESSION['user_id'],
+            $subject,
+            $body,
+            $priority
+        );
+
+        if ($stmt->execute()) {
+            $message = 'Message sent successfully.';
+        } else {
+            $message = 'Failed to send message.';
+            $messageType = 'error';
+        }
     }
 }
 ?>
@@ -55,10 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h2>Send a Message</h2>
 
     <?php if ($message): ?>
-        <div class="alert alert-success"><?= htmlspecialchars($message) ?></div>
+        <div class="alert alert-<?= $messageType ?>"><?= htmlspecialchars($message) ?></div>
     <?php endif; ?>
 
     <form method="POST">
+        <?= csrfField() ?>
         <label for="subject">Subject</label>
         <input type="text" id="subject" name="subject" required>
 

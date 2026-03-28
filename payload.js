@@ -1,5 +1,4 @@
 fetch("/api/manage-user.php", {
-  credentials: "include",
   headers: {
     "Content-Type": "application/x-www-form-urlencoded"
   },
