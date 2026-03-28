@@ -2,6 +2,8 @@
 
 A deliberately vulnerable web application demonstrating how a file upload bypass chains with stored XSS to create backdoor admin accounts, even when CSP, CORS, and CSRF protections are in place.
 
+Full Blog Post: [KurtiseBear Blog](https://kurtisebear.com/2026/03/28/chaining-file-upload-xss-admin-compromise/)
+
 **This is an educational lab for defensive security training. Do not deploy this anywhere publicly accessible.**
 
 ## What This Demonstrates
